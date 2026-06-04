@@ -12,9 +12,9 @@ RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 # 実行ステージ
 FROM eclipse-temurin:21-jre-jammy
-VOLUME /tmp
-ARG DEPENDENCY=/workspace/app/target/dependency
-COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
-COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app/app
-ENTRYPOINT ["java","-cp","app:app/lib/*","com.example.project.SpringBootFlowApplication"]
+WORKDIR /app
+# 生成されたjarファイルをapp.jarという名前でコピー
+COPY --from=build /workspace/app/target/*.jar app.jar
+EXPOSE 8080
+# jarを直接起動（メインクラスは自動で検出されます）
+ENTRYPOINT ["java", "-jar", "app.jar"]
